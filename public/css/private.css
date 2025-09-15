@@ -1,0 +1,57 @@
+/* Estilos globales mínimos para el layout privado */
+
+/* Tipografía y alineación general */
+body {
+  text-align: justify;
+}
+
+/* Botón genérico "ver reporte" (placeholder) */
+.btn-view-report {
+  background-color: #198754;
+  color: #fff;
+  border: 1px solid #198754;
+}
+.btn-view-report:hover,
+.btn-view-report:focus {
+  background-color: #157347;
+  border-color: #146c43;
+  color: #fff;
+}
+
+/* Utilidad de fondo base opcional */
+.bg-hero {
+  background-size: cover;
+  background-position: center;
+}
+
+/* Estilos específicos de anuncios */
+.card-img-top { 
+  height: 180px; 
+  object-fit: cover; 
+}
+
+.anuncio-card { 
+  transition: transform .15s ease, box-shadow .15s ease; 
+}
+
+.anuncio-card:hover { 
+  transform: translateY(-3px); 
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15); 
+}
+
+/* Encabezado de tabla blanco */
+.anuncios-table thead th { 
+  background-color: #fff; 
+}
+
+/* Badge de estado en tarjetas */
+.anuncio-card { 
+  position: relative; 
+}
+
+.anuncio-card .estado-badge { 
+  position: absolute; 
+  top: .5rem; 
+  right: .5rem; 
+  z-index: 2; 
+}

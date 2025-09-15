@@ -1,0 +1,25 @@
+[
+  {
+    "id": 1,
+    "descripcion": "VENDO MOTOCICLETA MODELO 2024| Marca NG-DECHE, Papeles al día, Motor 150 cc, 7000 bs. Primer dueño. Referencias al WhatsApp 67703320",
+    "foto": "public/img/moto.png",
+    "fecha_publicacion": "2025-09-15",
+    "estado": "Activo"
+  },
+  {
+    "id": 2,
+    "descripcion": "Sofá de 3 plazas, color gris, poco uso",
+    "foto": "public/img/sofa.png",
+    "fecha_publicacion": "2025-09-10",
+    "estado": "Finalizado"
+  },
+  {
+    "id": 3,
+    "descripcion": "RIGMASTER REQUIERE COORDINADOR| de Sig: Experiencia 2 años comprobada en la implementación y desarrollo de áreas de SIG (Calidad, Seguridad y Salud en el Trabajo, Medio Ambiente), Conocimientos y experiencia en la gestión de Normas ISO (9001, 14001, 45001 y relacionadas). Normas nacionales de seguridad y medio ambiente, Experiencia comprobada en procesos de certificación ISO.CV a:lmanjon@rigmaster.com.bo; amujica@rigmaster.com.bo o Teléf.68922386 o 68922379",
+    "foto": null,
+    "fecha_publicacion": "2025-09-15",
+    "estado": "Activo"
+  }
+]
+
+  
