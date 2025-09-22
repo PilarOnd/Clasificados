@@ -124,7 +124,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Imagen</th>
-                            <th>Descripción</th>
+                            <th class="w-50">Descripción</th>
                             <th>
                                 @php
                                     $currentSort = request('sort');
@@ -154,9 +154,9 @@
                                         <span class="text-muted">—</span>
                                     @endif
                                 </td>
-                                <td>
-                                    <div class="description-cell" style="max-width: 300px;">
-                                        {{ Str::limit($anuncio['descripcion'] ?? 'Sin descripción', 120, '...') }}
+                                <td class="w-50">
+                                    <div class="description-cell">
+                                        {{ $anuncio['descripcion'] ?? 'Sin descripción' }}
                                     </div>
                                 </td>
                                 <td style="white-space: nowrap;">
@@ -235,19 +235,6 @@ function toggleView(viewType) {
     border: 1px solid #e9ecef;
 }
 
-/* Distribución uniforme de tabs */
-.nav-item.flex-fill .nav-link {
-    border-radius: 0.375rem 0.375rem 0 0;
-    border-bottom: none;
-}
-
-.nav-item.flex-fill:first-child .nav-link {
-    border-top-left-radius: 0.375rem;
-}
-
-.nav-item.flex-fill:last-child .nav-link {
-    border-top-right-radius: 0.375rem;
-}
 
 .hover-card:hover {
     transform: translateY(-2px);
@@ -257,10 +244,6 @@ function toggleView(viewType) {
 
 .table-row-clickable:hover {
     background-color: #f8f9fa !important;
-}
-
-.table-row-clickable:hover td {
-    background-color: transparent !important;
 }
 
 .anuncio-card {
@@ -289,11 +272,6 @@ function toggleView(viewType) {
     outline-offset: 2px;
 }
 
-.table-row-clickable:focus {
-    outline: 2px solid #0d6efd;
-    outline-offset: -2px;
-}
-
 /* Optimizaciones para la tabla */
 .description-cell {
     word-wrap: break-word;
@@ -308,32 +286,6 @@ function toggleView(viewType) {
     line-height: 1.2;
 }
 
-/* Ajustar ancho de columnas */
-.anuncios-table th:nth-child(1),
-.anuncios-table td:nth-child(1) {
-    width: 60px;
-}
-
-.anuncios-table th:nth-child(2),
-.anuncios-table td:nth-child(2) {
-    width: 80px;
-}
-
-.anuncios-table th:nth-child(3),
-.anuncios-table td:nth-child(3) {
-    width: 300px;
-    max-width: 300px;
-}
-
-.anuncios-table th:nth-child(4),
-.anuncios-table td:nth-child(4) {
-    width: 120px;
-}
-
-.anuncios-table th:nth-child(5),
-.anuncios-table td:nth-child(5) {
-    width: 140px;
-}
 </style>
 @endsection
 
