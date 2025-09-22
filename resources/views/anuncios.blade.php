@@ -53,24 +53,26 @@
         <div id="cardsView" class="row g-3 {{ $initialView === 'table' ? 'd-none' : '' }}">
             @foreach($anuncios as $anuncio)
                 <div class="col-12 col-sm-6 col-md-4">
-                    <div class="card anuncio-card h-100">
-                        @php
-                            $estado = $anuncio['estado'] ?? null;
-                            $badgeClass = $estado === 'Activo' ? 'text-bg-success' : 'text-bg-secondary';
-                        @endphp
-                        @if($estado)
-                            <span class="badge estado-badge {{ $badgeClass }}">{{ $estado }}</span>
-                        @endif
-                        @if(!empty($anuncio['foto_url']))
-                            <img src="{{ $anuncio['foto_url'] }}" class="card-img-top" alt="Imagen del anuncio {{ $anuncio['id'] }}">
-                        @endif
-                        <div class="card-body d-flex flex-column">
-                            <p class="card-text mb-2">{{ $anuncio['descripcion'] ?? 'Sin descripción' }}</p>
-                            <div class="mt-auto small text-secondary">
-                                Publicado: {{ \Illuminate\Support\Carbon::parse($anuncio['fecha_publicacion'] ?? now())->translatedFormat('d M Y') }}
+                    <a href="{{ route('anuncio.show', $anuncio['id']) }}" class="text-decoration-none">
+                        <div class="card anuncio-card h-100 hover-card">
+                            @php
+                                $estado = $anuncio['estado'] ?? null;
+                                $badgeClass = $estado === 'Activo' ? 'text-bg-success' : 'text-bg-secondary';
+                            @endphp
+                            @if($estado)
+                                <span class="badge estado-badge {{ $badgeClass }}">{{ $estado }}</span>
+                            @endif
+                            @if(!empty($anuncio['foto_url']))
+                                <img src="{{ $anuncio['foto_url'] }}" class="card-img-top" alt="Imagen del anuncio {{ $anuncio['id'] }}">
+                            @endif
+                            <div class="card-body d-flex flex-column">
+                                <p class="card-text mb-2 text-dark">{{ $anuncio['descripcion'] ?? 'Sin descripción' }}</p>
+                                <div class="mt-auto small text-secondary">
+                                    Publicado: {{ \Illuminate\Support\Carbon::parse($anuncio['fecha_publicacion'] ?? now())->translatedFormat('d M Y') }}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             @endforeach
         </div>
@@ -110,7 +112,7 @@
                     </thead>
                     <tbody>
                         @foreach($anuncios as $anuncio)
-                            <tr>
+                            <tr class="table-row-clickable" onclick="window.location.href='{{ route('anuncio.show', $anuncio['id']) }}'" style="cursor: pointer;">
                                 <td class="fw-semibold">{{ $anuncio['id'] ?? '-' }}</td>
                                 <td>
                                     @if(!empty($anuncio['foto_url']))
@@ -170,6 +172,58 @@ function toggleView(viewType) {
     window.history.replaceState({}, '', url);
 }
 </script>
+
+<style>
+.hover-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.hover-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #0d6efd;
+}
+
+.table-row-clickable:hover {
+    background-color: #f8f9fa !important;
+}
+
+.table-row-clickable:hover td {
+    background-color: transparent !important;
+}
+
+.anuncio-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.estado-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+}
+
+.card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.hover-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+/* Mejorar la accesibilidad */
+.hover-card:focus-within {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+.table-row-clickable:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: -2px;
+}
+</style>
 @endsection
 
 
