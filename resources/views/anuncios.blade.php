@@ -6,6 +6,15 @@
 @section('content')
 @php
     $initialView = request('view') === 'table' ? 'table' : 'cards';
+    $activeStatus = $status ?? request('status');
+    $tabs = [
+        [ 'key' => null, 'label' => 'Todos', 'count' => null ],
+        [ 'key' => 'borrador', 'label' => 'Borradores', 'count' => $counts['borrador'] ?? 0 ],
+        [ 'key' => 'esperando_pago', 'label' => 'En espera de pago', 'count' => $counts['esperando_pago'] ?? 0 ],
+        [ 'key' => 'esperando_aprobacion', 'label' => 'En espera de aprobación', 'count' => $counts['esperando_aprobacion'] ?? 0 ],
+        [ 'key' => 'aprobado', 'label' => 'Aprobados', 'count' => $counts['aprobado'] ?? 0 ],
+        [ 'key' => 'rechazado', 'label' => 'Rechazados', 'count' => $counts['rechazado'] ?? 0 ],
+    ];
 @endphp
 <div class="container py-3">
     <div class="d-flex align-items-center justify-content-between mb-3">
@@ -22,21 +31,41 @@
         </div>
     </div>
 
+    <!-- Tabs de estado -->
+    <div class="nav nav-tabs d-flex mb-3" role="tablist">
+        @foreach($tabs as $tab)
+            @php
+                $isActive = ($activeStatus === ($tab['key'] ?? null)) || ($activeStatus === null && $tab['key'] === null);
+                $urlParams = array_merge(request()->all(), ['status' => $tab['key'], 'view' => $initialView]);
+                if ($tab['key'] === null) { unset($urlParams['status']); }
+            @endphp
+            <div class="nav-item flex-fill" role="presentation">
+                <a href="{{ route('mis-anuncios', $urlParams) }}" class="nav-link {{ $isActive ? 'active' : '' }} text-center" aria-current="{{ $isActive ? 'page' : 'false' }}">
+                    {{ $tab['label'] }}
+                    @if(!is_null($tab['count']))
+                        <span class="badge text-bg-secondary ms-1">{{ $tab['count'] }}</span>
+                    @endif
+                </a>
+            </div>
+        @endforeach
+    </div>
+
     <form method="GET" action="{{ route('mis-anuncios') }}" class="card border-0 shadow-sm mb-3">
         <div class="card-body">
             <div class="row g-2 align-items-end">
                 <input type="hidden" id="viewHidden" name="view" value="{{ $initialView }}">
+                <input type="hidden" id="statusHidden" name="status" value="{{ $activeStatus }}">
                 <div class="col-12 col-md-6 col-lg-5">
                     <label for="q" class="form-label small mb-1">Buscar</label>
                     <input type="text" id="q" name="q" value="{{ request('q') }}" class="form-control" placeholder="Buscar por descripción...">
                 </div>
-                <div class="col-6 col-md-3 col-lg-2">
-                    <label for="desde" class="form-label small mb-1">Desde</label>
-                    <input type="date" id="desde" name="desde" value="{{ request('desde') }}" class="form-control">
-                </div>
-                <div class="col-6 col-md-3 col-lg-2">
-                    <label for="hasta" class="form-label small mb-1">Hasta</label>
-                    <input type="date" id="hasta" name="hasta" value="{{ request('hasta') }}" class="form-control">
+                <div class="col-12 col-md-6 col-lg-4">
+                    <label class="form-label small mb-1">Fecha(s) de publicación</label>
+                    <div class="input-group">
+                        <input type="date" id="desde" name="desde" value="{{ request('desde') }}" class="form-control">
+                        <span class="input-group-text">—</span>
+                        <input type="date" id="hasta" name="hasta" value="{{ request('hasta') }}" class="form-control">
+                    </div>
                 </div>
                 <div class="col-12 col-lg-3 d-flex gap-2">
                     <button type="submit" class="btn btn-success w-100">Filtrar</button>
@@ -56,11 +85,11 @@
                     <a href="{{ route('anuncio.show', $anuncio['id']) }}" class="text-decoration-none">
                         <div class="card anuncio-card h-100 hover-card">
                             @php
-                                $estado = $anuncio['estado'] ?? null;
-                                $badgeClass = $estado === 'Activo' ? 'text-bg-success' : 'text-bg-secondary';
+                                $pubPhase = $anuncio['publicacion_fase'] ?? null;
+                                $pubColor = $anuncio['publicacion_color'] ?? 'secondary';
                             @endphp
-                            @if($estado)
-                                <span class="badge estado-badge {{ $badgeClass }}">{{ $estado }}</span>
+                            @if($pubPhase)
+                                <span class="badge publicacion-badge text-bg-{{ $pubColor }}">{{ $pubPhase }}</span>
                             @endif
                             @if(!empty($anuncio['foto_url']))
                                 <img src="{{ $anuncio['foto_url'] }}" class="card-img-top" alt="Imagen del anuncio {{ $anuncio['id'] }}">
@@ -68,7 +97,17 @@
                             <div class="card-body d-flex flex-column">
                                 <p class="card-text mb-2 text-dark">{{ $anuncio['descripcion'] ?? 'Sin descripción' }}</p>
                                 <div class="mt-auto small text-secondary">
-                                    Publicado: {{ \Illuminate\Support\Carbon::parse($anuncio['fecha_publicacion'] ?? now())->translatedFormat('d M Y') }}
+                                    @php
+                                        $fi = $anuncio['fecha_inicio'] ?? null;
+                                        $ff = $anuncio['fecha_fin'] ?? null;
+                                    @endphp
+                                    @if($fi && $ff)
+                                        {{ \Illuminate\Support\Carbon::parse($fi)->translatedFormat('d M Y') }} — {{ \Illuminate\Support\Carbon::parse($ff)->translatedFormat('d M Y') }}
+                                    @elseif($fi)
+                                        {{ \Illuminate\Support\Carbon::parse($fi)->translatedFormat('d M Y') }}
+                                    @else
+                                        Publicado: {{ \Illuminate\Support\Carbon::parse($anuncio['fecha_publicacion'] ?? now())->translatedFormat('d M Y') }}
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -94,20 +133,13 @@
                                     $nextDirEstado = ($currentSort === 'estado' && $currentDir === 'asc') ? 'desc' : 'asc';
                                 @endphp
                                 <a href="{{ route('mis-anuncios', array_merge(request()->all(), ['sort' => 'fecha', 'dir' => $nextDirFecha, 'view' => 'table'])) }}" class="text-decoration-none text-reset">
-                                    Fecha de Publicación
+                                    Fecha(s) de Publicación
                                     @if($currentSort === 'fecha')
                                         <i class="bi {{ $currentDir === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' }}"></i>
                                     @endif
                                 </a>
                             </th>
-                            <th>
-                                <a href="{{ route('mis-anuncios', array_merge(request()->all(), ['sort' => 'estado', 'dir' => $nextDirEstado, 'view' => 'table'])) }}" class="text-decoration-none text-reset">
-                                    Estado
-                                    @if($currentSort === 'estado')
-                                        <i class="bi {{ $currentDir === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' }}"></i>
-                                    @endif
-                                </a>
-                            </th>
+                            <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -122,19 +154,39 @@
                                         <span class="text-muted">—</span>
                                     @endif
                                 </td>
-                                <td>{{ $anuncio['descripcion'] ?? 'Sin descripción' }}</td>
-                                <td>{{ \Illuminate\Support\Carbon::parse($anuncio['fecha_publicacion'] ?? now())->translatedFormat('d M Y') }}</td>
+                                <td>
+                                    <div class="description-cell" style="max-width: 300px;">
+                                        {{ Str::limit($anuncio['descripcion'] ?? 'Sin descripción', 120, '...') }}
+                                    </div>
+                                </td>
+                                <td style="white-space: nowrap;">
+                                    @php
+                                        $fi = $anuncio['fecha_inicio'] ?? null;
+                                        $ff = $anuncio['fecha_fin'] ?? null;
+                                    @endphp
+                                    @if($fi && $ff)
+                                        <div class="date-range">
+                                            <div>{{ \Illuminate\Support\Carbon::parse($fi)->translatedFormat('d M Y') }}</div>
+                                            <div class="text-muted small">{{ \Illuminate\Support\Carbon::parse($ff)->translatedFormat('d M Y') }}</div>
+                                        </div>
+                                    @elseif($fi)
+                                        <div>{{ \Illuminate\Support\Carbon::parse($fi)->translatedFormat('d M Y') }}</div>
+                                    @else
+                                        <div>{{ \Illuminate\Support\Carbon::parse($anuncio['fecha_publicacion'] ?? now())->translatedFormat('d M Y') }}</div>
+                                    @endif
+                                </td>
                                 @php
-                                    $estado = $anuncio['estado'] ?? null;
-                                    $badgeClass = $estado === 'Activo' ? 'text-bg-success' : 'text-bg-secondary';
+                                    $pubPhase = $anuncio['publicacion_fase'] ?? null;
+                                    $pubColor = $anuncio['publicacion_color'] ?? 'secondary';
                                 @endphp
                                 <td>
-                                    @if($estado)
-                                        <span class="badge {{ $badgeClass }}">{{ $estado }}</span>
+                                    @if($pubPhase)
+                                        <span class="badge text-bg-{{ $pubColor }}">{{ $pubPhase }}</span>
                                     @else
                                         <span class="text-muted">—</span>
                                     @endif
                                 </td>
+                                
                             </tr>
                         @endforeach
                     </tbody>
@@ -153,6 +205,7 @@ function toggleView(viewType) {
     const cardsBtn = document.getElementById('viewCards');
     const tableBtn = document.getElementById('viewTable');
     const viewHidden = document.getElementById('viewHidden');
+    const statusHidden = document.getElementById('statusHidden');
     
     if (viewType === 'cards') {
         cardsView.classList.remove('d-none');
@@ -166,9 +219,12 @@ function toggleView(viewType) {
         tableBtn.classList.add('active');
     }
     if (viewHidden) viewHidden.value = viewType;
-    // Actualizar query param sin recargar
+    // Actualizar query param sin recargar y preservar status
     const url = new URL(window.location.href);
     url.searchParams.set('view', viewType);
+    if (statusHidden && statusHidden.value) {
+        url.searchParams.set('status', statusHidden.value);
+    }
     window.history.replaceState({}, '', url);
 }
 </script>
@@ -177,6 +233,20 @@ function toggleView(viewType) {
 .hover-card {
     transition: all 0.3s ease;
     border: 1px solid #e9ecef;
+}
+
+/* Distribución uniforme de tabs */
+.nav-item.flex-fill .nav-link {
+    border-radius: 0.375rem 0.375rem 0 0;
+    border-bottom: none;
+}
+
+.nav-item.flex-fill:first-child .nav-link {
+    border-top-left-radius: 0.375rem;
+}
+
+.nav-item.flex-fill:last-child .nav-link {
+    border-top-right-radius: 0.375rem;
 }
 
 .hover-card:hover {
@@ -198,7 +268,7 @@ function toggleView(viewType) {
     overflow: hidden;
 }
 
-.estado-badge {
+.publicacion-badge {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -222,6 +292,47 @@ function toggleView(viewType) {
 .table-row-clickable:focus {
     outline: 2px solid #0d6efd;
     outline-offset: -2px;
+}
+
+/* Optimizaciones para la tabla */
+.description-cell {
+    word-wrap: break-word;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.date-range {
+    line-height: 1.2;
+}
+
+/* Ajustar ancho de columnas */
+.anuncios-table th:nth-child(1),
+.anuncios-table td:nth-child(1) {
+    width: 60px;
+}
+
+.anuncios-table th:nth-child(2),
+.anuncios-table td:nth-child(2) {
+    width: 80px;
+}
+
+.anuncios-table th:nth-child(3),
+.anuncios-table td:nth-child(3) {
+    width: 300px;
+    max-width: 300px;
+}
+
+.anuncios-table th:nth-child(4),
+.anuncios-table td:nth-child(4) {
+    width: 120px;
+}
+
+.anuncios-table th:nth-child(5),
+.anuncios-table td:nth-child(5) {
+    width: 140px;
 }
 </style>
 @endsection

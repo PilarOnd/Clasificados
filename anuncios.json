@@ -4,21 +4,54 @@
     "descripcion": "VENDO MOTOCICLETA MODELO 2024| Marca NG-DECHE, Papeles al día, Motor 150 cc, 7000 bs. Primer dueño. Referencias al WhatsApp 67703320",
     "foto": "public/img/moto.png",
     "fecha_publicacion": "2025-09-15",
-    "estado": "Activo"
+    "fecha_inicio": "2025-09-15",
+    "fecha_fin": "2025-09-30",
+    "publicacion_estado": "aprobado"
   },
   {
     "id": 2,
     "descripcion": "Casa amplia en Alquiler de 2 plantas para vivienda o oficina. Cocina amoblada ,comedor de diario ,despensa ,galeria.Galeria churrasquera ,toda amoblada de madera lavandería y deposito.4 dormitorio (todas en suite ) Sala de estar Jardín posterior Piscina ,area infantil Garaje para 4 movilidades. Mas información al 78001540",
     "foto": "public/img/casa.png",
     "fecha_publicacion": "2025-09-10",
-    "estado": "Finalizado"
+    "fecha_inicio": "2025-09-10",
+    "fecha_fin": "2025-09-14",
+    "publicacion_estado": "aprobado"
   },
   {
     "id": 3,
     "descripcion": "RIGMASTER REQUIERE COORDINADOR| de Sig: Experiencia 2 años comprobada en la implementación y desarrollo de áreas de SIG (Calidad, Seguridad y Salud en el Trabajo, Medio Ambiente), Conocimientos y experiencia en la gestión de Normas ISO (9001, 14001, 45001 y relacionadas). Normas nacionales de seguridad y medio ambiente, Experiencia comprobada en procesos de certificación ISO.CV a:lmanjon@rigmaster.com.bo; amujica@rigmaster.com.bo o Teléf.68922386 o 68922379",
     "foto": null,
     "fecha_publicacion": "2025-09-15",
-    "estado": "Activo"
+    "fecha_inicio": "2025-09-15",
+    "fecha_fin": "2025-09-29",
+    "publicacion_estado": "en_espera_de_aprobacion"
+  },
+  {
+    "id": 4,
+    "descripcion": "PARA YACUSES-PTO. SUÁREZ, | buscamos Mecanico de equipo pesado, operador de volqueta, operadores de pala cargadora, operador de excavadora, y ayudantes en general. Referencias: 68937057",
+    "foto": null,
+    "fecha_publicacion": "2025-09-22",
+    "fecha_inicio": "2025-09-22",
+    "fecha_fin": "2025-09-24",
+    "publicacion_estado": "en_espera_de_pago"
+  },
+  {
+    "id": 5,
+    "descripcion": "EMPRESA DE DISTRIBUCION DE INSUMOS Publicitarios buscar personal femenio Auxiliar de oficina con experiencia en ventas y manejo de carteras de clientes. Se ofrece suedo fijo. Interesados comunicarse al Whatsapp 79897795 para agendar entrevista.",
+    "foto": "public/img/hany.png",
+    "fecha_publicacion": "2025-09-22",
+    "fecha_inicio": "2025-09-22",
+    "fecha_fin": "2025-09-22",
+    "publicacion_estado": "aprobado"
+  },
+  {
+    "id": 6,
+    "descripcion": "GX ASIA LATINA -| Santa Cruz. Requerimiento de Personal: Asesor de Importaciones. Empresa de asesoramiento en importaciones requiere para Santa Cruz. -Técnico, egresado o titulado en Comercio Internacional, Adm. de Empresas, o ramas a fines. -Experiencia y buena atención al cliente (Indispensable). -Conocimiento en Excel. -Conocimiento sobre importaciones. -Disponibilidad de tiempo completo y viajes. Enviar su hoja de vida y pretension salarial, al correo: gxasialatina@gmail.com",
+    "foto": null,
+    "fecha_publicacion": "2025-09-22",
+    "fecha_inicio": "2025-09-22",
+    "fecha_fin": "2025-09-23",
+    "publicacion_estado": "rechazado"
   }
 ]
 

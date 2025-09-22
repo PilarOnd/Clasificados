@@ -36,42 +36,46 @@
                 </div>
                 
                 <div class="card-body p-4">
-                    @if(!empty($anuncio['foto_url']))
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h5 class="text-muted mb-3">Imagen del Anuncio:</h5>
-                                <div class="anuncio-image-container text-center">
+                    <div class="row">
+                        <!-- Columna de la imagen (izquierda) -->
+                        @if(!empty($anuncio['foto_url']))
+                            <div class="col-md-4 mb-4 mb-md-0">
+                                <h5 class="text-muted mb-3">Imagen del Anuncio</h5>
+                                <div class="anuncio-image-container">
                                     <img src="{{ $anuncio['foto_url'] }}" 
                                          class="img-fluid anuncio-detail-image" 
                                          alt="Imagen del anuncio {{ $anuncio['id'] }}"
-                                         style="max-height: 250px; max-width: 400px; object-fit: cover; border-radius: 0.375rem; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);">
+                                         style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 0.375rem; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);">
                                 </div>
                             </div>
-                        </div>
-                    @endif
-                    
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h5 class="text-muted mb-2">Descripción</h5>
-                            <div class="anuncio-description">{!! nl2br(e(trim($anuncio['descripcion'] ?? 'Sin descripción'))) !!}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-muted mb-2">
-                                <i class="bi bi-calendar-event"></i> Fecha de Publicación
-                            </h6>
-                            <p class="mb-0">
-                                {{ \Illuminate\Support\Carbon::parse($anuncio['fecha_publicacion'] ?? now())->translatedFormat('l, d \d\e F \d\e Y') }}
-                            </p>
-                        </div>
+                        @endif
                         
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-muted mb-2">
-                                <i class="bi bi-hash"></i> ID del Anuncio
-                            </h6>
-                            <p class="mb-0 fw-semibold">#{{ $anuncio['id'] }}</p>
+                        <!-- Columna de los datos (derecha) -->
+                        <div class="col-md-8">
+                            <!-- Descripción -->
+                            <div class="mb-4">
+                                <h5 class="text-muted mb-3">Descripción</h5>
+                                <div class="anuncio-description">{!! nl2br(e(trim($anuncio['descripcion'] ?? 'Sin descripción'))) !!}</div>
+                            </div>
+                            
+                            <!-- Información del anuncio -->
+                            <div class="row">
+                                <div class="col-sm-6 mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="bi bi-calendar-event"></i> Fecha de Publicación
+                                    </h6>
+                                    <p class="mb-0">
+                                        {{ \Illuminate\Support\Carbon::parse($anuncio['fecha_publicacion'] ?? now())->translatedFormat('l, d \d\e F \d\e Y') }}
+                                    </p>
+                                </div>
+                                
+                                <div class="col-sm-6 mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="bi bi-hash"></i> ID del Anuncio
+                                    </h6>
+                                    <p class="mb-0 fw-semibold">#{{ $anuncio['id'] }}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -130,15 +134,25 @@ function compartirAnuncio() {
 
 .anuncio-detail-image {
     transition: transform 0.2s ease-in-out;
+    border: 1px solid #dee2e6;
 }
 
 .anuncio-detail-image:hover {
     transform: scale(1.02);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
 }
 
 .anuncio-image-container {
     position: relative;
     overflow: hidden;
+    border-radius: 0.375rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .anuncio-detail-image {
+        max-height: 300px !important;
+    }
 }
 
 @media print {
@@ -151,6 +165,10 @@ function compartirAnuncio() {
     .card {
         border: none !important;
         box-shadow: none !important;
+    }
+    
+    .anuncio-detail-image {
+        max-height: 200px !important;
     }
 }
 </style>

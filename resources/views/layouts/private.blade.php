@@ -15,7 +15,8 @@
 
     <style>
         :root { --navbar-height: 56px; --sidebar-width: 260px; }
-        body { padding-top: var(--navbar-height); text-align: justify; overflow-x: hidden; }
+        body { padding-top: var(--navbar-height); text-align: justify; overflow: hidden; }
+        main#mainContent { height: calc(100vh - var(--navbar-height)); overflow: auto; }
         /* Sidebar fijo en pantallas grandes */
         @media (min-width: 992px) {
             #sidebarMenu { position: fixed; top: var(--navbar-height); bottom: 0; width: var(--sidebar-width); max-width: var(--sidebar-width); overflow-y: auto; overflow-x: hidden; }

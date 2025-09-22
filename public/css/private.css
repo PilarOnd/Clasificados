@@ -5,25 +5,6 @@ body {
   text-align: justify;
 }
 
-/* Botón genérico "ver reporte" (placeholder) */
-.btn-view-report {
-  background-color: #198754;
-  color: #fff;
-  border: 1px solid #198754;
-}
-.btn-view-report:hover,
-.btn-view-report:focus {
-  background-color: #157347;
-  border-color: #146c43;
-  color: #fff;
-}
-
-/* Utilidad de fondo base opcional */
-.bg-hero {
-  background-size: cover;
-  background-position: center;
-}
-
 /* Estilos específicos de anuncios */
 .card-img-top { 
   height: 180px; 

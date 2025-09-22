@@ -30,12 +30,19 @@ class AnuncioController extends Controller
 
         $anuncios = $this->anuncioService->filterAnuncios($anuncios, $filters);
 
+        // Filtro por estado (pestañas)
+        $status = $request->get('status');
+        $anuncios = $this->anuncioService->filterByStatus($anuncios, $status);
+
+        // Conteos por estado (sobre el conjunto total sin filtro de status)
+        $counts = $this->anuncioService->getStatusCounts($this->anuncioService->getAllAnuncios());
+
         // Aplicar ordenamiento
         $sort = $request->get('sort');
         $dir = $request->get('dir', 'asc');
         $anuncios = $this->anuncioService->sortAnuncios($anuncios, $sort, $dir);
 
-        return view('anuncios', compact('anuncios'));
+        return view('anuncios', compact('anuncios', 'counts', 'status'));
     }
 
     /**
