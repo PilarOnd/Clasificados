@@ -13,27 +13,31 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <style>
-        :root { --navbar-height: 56px; --sidebar-width: 260px; }
-        body { padding-top: var(--navbar-height); text-align: justify; overflow: hidden; }
-        main#mainContent { height: calc(100vh - var(--navbar-height)); overflow: auto; }
-        /* Sidebar fijo en pantallas grandes */
-        @media (min-width: 992px) {
-            #sidebarMenu { position: fixed; top: var(--navbar-height); bottom: 0; width: var(--sidebar-width); max-width: var(--sidebar-width); overflow-y: auto; overflow-x: hidden; }
-            main#mainContent { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); }
-        }
-
-        /* Ajustes de colores para sidebar en bg-success */
-        #sidebarMenu .list-group-item { background-color: transparent; color: #fff; border: 0; }
-        #sidebarMenu .list-group-item:hover { background-color: rgba(255,255,255,0.12); color: #fff; }
-        #sidebarMenu .list-group-item.active { background-color: rgba(255,255,255,0.25); color: #fff; border: 0; }
-        #sidebarMenu .list-group-item i { color: #ffffff; }
-        #sidebarMenu .list-group-item.active i { color: #ffffff; }
-    </style>
+    
 
     @yield('styles')
 </head>
 <body>
+    @php
+        $appUserEmail = 'admin.prueba@gmail.com';
+        $appUserAvatar = 'img/hany.png';
+        try {
+            $jsonPath = base_path('user.json');
+            if (file_exists($jsonPath)) {
+                $data = json_decode(file_get_contents($jsonPath), true);
+                if (isset($data['usuarios'][0]['correo'])) {
+                    $appUserEmail = $data['usuarios'][0]['correo'];
+                }
+                if (!empty($data['usuarios'][0]['foto'])) {
+                    $appUserAvatar = ltrim($data['usuarios'][0]['foto'], '/');
+                }
+            }
+        } catch (\Throwable $e) {
+            // silencio: usamos valores por defecto
+        }
+        $appUserAvatarUrl = asset($appUserAvatar);
+        $navbarAvatar = optional(Auth::user())->avatar_path ? asset(optional(Auth::user())->avatar_path) : $appUserAvatarUrl;
+    @endphp
     <!-- Topbar -->
     <nav class="navbar navbar-expand navbar-dark bg-success fixed-top shadow-sm">
         <div class="container-fluid">
@@ -44,9 +48,28 @@
             <span class="navbar-text ms-2 fw-semibold text-white">Dashboard</span>
 
             <div class="ms-auto d-flex align-items-center gap-3">
-                <span class="text-white small d-none d-md-inline">Bienvenido, Administrador</span>
-                <a href="#" class="text-white"><i class="bi bi-bell fs-5"></i></a>
-                <a href="#" class="text-white"><i class="bi bi-check-circle-fill fs-5"></i></a>
+                <span class="text-white small d-none d-md-inline">Bienvenido, {{ optional(Auth::user())->name ?? 'Administrador' }}</span>
+                <a href="#" class="text-white d-none d-md-inline"><i class="bi bi-bell fs-5"></i></a>
+                <div class="dropdown" id="userDropdownWrapper">
+                    <a class="d-flex align-items-center text-white text-decoration-none" href="#" id="userDropdown" aria-expanded="false" role="button">
+                        <img src="{{ $navbarAvatar }}" alt="Avatar" class="rounded-circle" style="width:32px; height:32px; object-fit:cover;">
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow p-0" aria-labelledby="userDropdown" id="userDropdownMenu">
+                        <li class="px-3 py-3">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ $navbarAvatar }}" alt="Avatar" class="rounded-circle me-3" style="width:48px; height:48px; object-fit:cover;">
+                                <div class="min-w-0">
+                                    <div class="fw-semibold text-truncate">{{ optional(Auth::user())->name ?? 'Administrador' }}</div>
+                                    <div class="text-muted small text-truncate" style="max-width: 180px;">{{ optional(Auth::user())->email ?? $appUserEmail }}</div>
+                                </div>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider m-0"></li>
+                        <li><a class="dropdown-item py-2" href="{{ route('perfil') }}">Mi Perfil</a></li>
+                        <li><hr class="dropdown-divider m-0"></li>
+                        <li><a class="dropdown-item py-2" href="{{ route('logout') }}">Cerrar sesión</a></li>
+                    </ul>
+                </div>
                 @yield('navbar-actions')
             </div>
         </div>
@@ -60,13 +83,17 @@
             </a>
         </div>
         <div class="list-group list-group-flush py-2">
-            <a href="{{ url('/') }}" class="list-group-item list-group-item-action d-flex align-items-center gap-2 {{ request()->is('/') ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action d-flex align-items-center gap-2 {{ request()->is('/') ? 'active' : '' }}">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
             <a href="{{ url('/mis-anuncios') }}" class="list-group-item list-group-item-action d-flex align-items-center gap-2 {{ request()->is('mis-anuncios') ? 'active' : '' }}">
                 <i class="bi bi-card-list"></i>
                 <span>Mis Anuncios</span>
+            </a>
+            <a href="{{ route('perfil') }}" class="list-group-item list-group-item-action d-flex align-items-center gap-2 {{ request()->is('perfil') ? 'active' : '' }}">
+                <i class="bi bi-person-circle"></i>
+                <span>Mi Perfil</span>
             </a>
             @yield('sidebar-extra')
         </div>
@@ -84,6 +111,24 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     @yield('scripts')
+
+    <script>
+        // Fallback mínimo: mostrar/ocultar menú al hacer clic en la foto
+        (function(){
+            var wrapper = document.getElementById('userDropdownWrapper');
+            var trigger = document.getElementById('userDropdown');
+            var menu = document.getElementById('userDropdownMenu');
+            if (!wrapper || !trigger || !menu) return;
+            trigger.addEventListener('click', function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                menu.classList.toggle('show');
+            });
+            document.addEventListener('click', function(e){
+                if (!wrapper.contains(e.target)) menu.classList.remove('show');
+            });
+        })();
+    </script>
 </body>
 </html>
 

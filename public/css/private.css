@@ -5,6 +5,77 @@ body {
   text-align: justify;
 }
 
+/* Variables y layout del dashboard */
+:root { 
+  --navbar-height: 56px; 
+  --sidebar-width: 260px; 
+}
+
+body {
+  padding-top: var(--navbar-height);
+  /* permitir que dropdowns se muestren correctamente */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+main#mainContent { 
+  height: calc(100vh - var(--navbar-height)); 
+  overflow: auto; 
+}
+
+/* Sidebar fijo en pantallas grandes */
+@media (min-width: 992px) {
+  #sidebarMenu { 
+    position: fixed; 
+    top: var(--navbar-height); 
+    bottom: 0; 
+    width: var(--sidebar-width); 
+    max-width: var(--sidebar-width); 
+    overflow-y: auto; 
+    overflow-x: hidden; 
+  }
+  main#mainContent { 
+    margin-left: var(--sidebar-width); 
+    width: calc(100% - var(--sidebar-width)); 
+  }
+}
+
+/* Ajustes de colores para sidebar en bg-success */
+#sidebarMenu .list-group-item { 
+  background-color: transparent; 
+  color: #fff; 
+  border: 0; 
+}
+#sidebarMenu .list-group-item:hover { 
+  background-color: rgba(255,255,255,0.12); 
+  color: #fff; 
+}
+#sidebarMenu .list-group-item.active { 
+  background-color: rgba(255,255,255,0.25); 
+  color: #fff; 
+  border: 0; 
+}
+#sidebarMenu .list-group-item i { color: #ffffff; }
+#sidebarMenu .list-group-item.active i { color: #ffffff; }
+
+/* Asegurar que el dropdown del usuario no quede oculto */
+.navbar .dropdown-menu { z-index: 2000; }
+
+/* Forzar posicionamiento correcto del dropdown del avatar sin Popper */
+#userDropdownWrapper { position: relative; }
+#userDropdownWrapper .dropdown-menu {
+  position: absolute;
+  right: 0;      /* alineado al borde derecho del botón */
+  left: auto;
+  top: 100%;
+  margin-top: .5rem;
+  min-width: 280px;
+}
+#userDropdownWrapper .dropdown-menu.show { display: block; }
+
+/* Eliminar cualquier caret/indicador del toggle si existiera */
+#userDropdown.dropdown-toggle::after { display: none; }
+
 /* Estilos específicos de anuncios */
 .card-img-top { 
   height: 180px; 

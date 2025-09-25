@@ -58,4 +58,52 @@ class AnuncioController extends Controller
 
         return view('show', compact('anuncio'));
     }
+
+    /**
+     * Muestra el formulario para editar un anuncio
+     */
+    public function edit(int $id)
+    {
+        $anuncio = $this->anuncioService->findAnuncioById($id);
+
+        if (!$anuncio) {
+            abort(404, 'Anuncio no encontrado');
+        }
+
+        return view('anuncios.edit', compact('anuncio'));
+    }
+
+    /**
+     * Actualiza un anuncio existente
+     */
+    public function update(Request $request, int $id)
+    {
+        $anuncio = $this->anuncioService->findAnuncioById($id);
+
+        if (!$anuncio) {
+            abort(404, 'Anuncio no encontrado');
+        }
+
+        $request->validate([
+            'descripcion' => 'required|string|max:1000',
+            'fecha_inicio' => 'nullable|date',
+            'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $data = $request->only(['descripcion', 'fecha_inicio', 'fecha_fin']);
+        
+        // Manejar subida de imagen si se proporciona
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto');
+            $nombreArchivo = 'anuncio_' . $id . '_' . time() . '.' . $foto->getClientOriginalExtension();
+            $foto->move(public_path('img'), $nombreArchivo);
+            $data['foto'] = 'img/' . $nombreArchivo;
+        }
+
+        $this->anuncioService->updateAnuncio($id, $data);
+
+        return redirect()->route('anuncio.show', $id)
+            ->with('success', 'Anuncio actualizado correctamente');
+    }
 }

@@ -53,6 +53,110 @@ class AnuncioService
     }
 
     /**
+     * Actualiza un anuncio existente
+     */
+    public function updateAnuncio(int $id, array $data): bool
+    {
+        $anuncios = $this->getAllAnuncios();
+        $index = collect($anuncios)->search(function ($item) use ($id) {
+            return $item['id'] === $id;
+        });
+
+        if ($index === false) {
+            return false;
+        }
+
+        $anuncioOriginal = $anuncios[$index];
+        
+        // Crear registro de historial
+        $historial = $this->crearRegistroHistorial($anuncioOriginal, $data);
+        
+        // Agregar fecha de última modificación
+        $data['fecha_ultima_modificacion'] = now()->toISOString();
+        
+        // Agregar historial al anuncio
+        if (!isset($anuncioOriginal['historial'])) {
+            $anuncioOriginal['historial'] = [];
+        }
+        $anuncioOriginal['historial'][] = $historial;
+        
+        // Actualizar los datos del anuncio
+        $anuncios[$index] = array_merge($anuncioOriginal, $data);
+        
+        // Guardar en el archivo JSON
+        return $this->saveAnuncios($anuncios);
+    }
+
+    /**
+     * Crea un registro de historial para los cambios realizados
+     */
+    private function crearRegistroHistorial(array $anuncioOriginal, array $datosNuevos): array
+    {
+        $cambios = [];
+        $fechaActual = now()->toISOString();
+
+        // Verificar cambios en descripción
+        if (isset($datosNuevos['descripcion']) && $datosNuevos['descripcion'] !== ($anuncioOriginal['descripcion'] ?? '')) {
+            $cambios[] = [
+                'campo' => 'descripcion',
+                'valor_anterior' => $anuncioOriginal['descripcion'] ?? '',
+                'valor_nuevo' => $datosNuevos['descripcion'],
+                'tipo' => 'texto'
+            ];
+        }
+
+        // Verificar cambios en fecha_inicio
+        if (isset($datosNuevos['fecha_inicio']) && $datosNuevos['fecha_inicio'] !== ($anuncioOriginal['fecha_inicio'] ?? '')) {
+            $cambios[] = [
+                'campo' => 'fecha_inicio',
+                'valor_anterior' => $anuncioOriginal['fecha_inicio'] ?? '',
+                'valor_nuevo' => $datosNuevos['fecha_inicio'],
+                'tipo' => 'fecha'
+            ];
+        }
+
+        // Verificar cambios en fecha_fin
+        if (isset($datosNuevos['fecha_fin']) && $datosNuevos['fecha_fin'] !== ($anuncioOriginal['fecha_fin'] ?? '')) {
+            $cambios[] = [
+                'campo' => 'fecha_fin',
+                'valor_anterior' => $anuncioOriginal['fecha_fin'] ?? '',
+                'valor_nuevo' => $datosNuevos['fecha_fin'],
+                'tipo' => 'fecha'
+            ];
+        }
+
+        // Verificar cambios en foto
+        if (isset($datosNuevos['foto']) && $datosNuevos['foto'] !== ($anuncioOriginal['foto'] ?? '')) {
+            $cambios[] = [
+                'campo' => 'foto',
+                'valor_anterior' => $anuncioOriginal['foto'] ?? '',
+                'valor_nuevo' => $datosNuevos['foto'],
+                'tipo' => 'imagen'
+            ];
+        }
+
+        return [
+            'fecha' => $fechaActual,
+            'tipo_operacion' => 'edicion',
+            'cambios' => $cambios,
+            'total_cambios' => count($cambios)
+        ];
+    }
+
+    /**
+     * Guarda los anuncios en el archivo JSON
+     */
+    private function saveAnuncios(array $anuncios): bool
+    {
+        try {
+            $json = json_encode($anuncios, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            return file_put_contents($this->filePath, $json) !== false;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
      * Filtra anuncios por criterios
      */
     public function filterAnuncios(array $anuncios, array $filters): array

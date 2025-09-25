@@ -1,17 +1,17 @@
 {
     "usuarios": [
-      {
-        "nombre": "Admin",
-        "correo": "admin.prueba@gmail.com",
-        "rol": "Administrador",
-        "contraseña": "1234567890"
-      },
-      {
-        "nombre": "Customer",
-        "correo": "cliente.prueba@gmail.com",
-        "rol": "Cliente",
-        "contraseña": "0987654321"
-      }
+        {
+            "nombre": "Admin",
+            "correo": "admin.prueba@gmail.com",
+            "rol": "Administrador",
+            "contraseña": "1234567890",
+            "foto": "\/storage\/avatars\/avatar_1758828092_5e02ab88.png"
+        },
+        {
+            "nombre": "Customer",
+            "correo": "cliente.prueba@gmail.com",
+            "rol": "Cliente",
+            "contraseña": "0987654321"
+        }
     ]
-  }
-  
+}

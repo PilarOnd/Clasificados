@@ -75,9 +75,120 @@
                                     </h6>
                                     <p class="mb-0 fw-semibold">#{{ $anuncio['id'] }}</p>
                                 </div>
+                                
+                                @if(!empty($anuncio['fecha_ultima_modificacion']))
+                                <div class="col-sm-6 mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="bi bi-pencil-square"></i> Última Modificación
+                                    </h6>
+                                    <p class="mb-0">
+                                        {{ \Illuminate\Support\Carbon::parse($anuncio['fecha_ultima_modificacion'])->translatedFormat('l, d \d\e F \d\e Y \a \l\a\s H:i') }}
+                                        <small class="text-muted d-block">
+                                            ({{ \Illuminate\Support\Carbon::parse($anuncio['fecha_ultima_modificacion'])->diffForHumans() }})
+                                        </small>
+                                    </p>
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Sección de Historial de Cambios -->
+                    @if(!empty($anuncio['historial']) && count($anuncio['historial']) > 0)
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card border-0 bg-light">
+                                <div class="card-header bg-transparent border-0">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-clock-history me-2"></i>
+                                        Historial de Cambios
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="timeline">
+                                        @foreach(array_reverse($anuncio['historial']) as $index => $registro)
+                                        <div class="timeline-item">
+                                            <div class="timeline-marker">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </div>
+                                            <div class="timeline-content">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="mb-0">Edición #{{ count($anuncio['historial']) - $index }}</h6>
+                                                    <small class="text-muted">
+                                                        {{ \Illuminate\Support\Carbon::parse($registro['fecha'])->diffForHumans() }}
+                                                    </small>
+                                                </div>
+                                                <p class="text-muted small mb-2">
+                                                    {{ \Illuminate\Support\Carbon::parse($registro['fecha'])->translatedFormat('l, d \d\e F \d\e Y \a \l\a\s H:i') }}
+                                                </p>
+                                                
+                                                @if($registro['total_cambios'] > 0)
+                                                    <div class="cambios-detalle">
+                                                        <small class="text-muted d-block mb-2">
+                                                            <strong>{{ $registro['total_cambios'] }}</strong> 
+                                                            {{ $registro['total_cambios'] === 1 ? 'campo modificado' : 'campos modificados' }}:
+                                                        </small>
+                                                        @foreach($registro['cambios'] as $cambio)
+                                                        <div class="cambio-item mb-2 p-2 bg-white rounded border">
+                                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                <strong class="text-capitalize">
+                                                                    @switch($cambio['campo'])
+                                                                        @case('descripcion')
+                                                                            Descripción
+                                                                            @break
+                                                                        @case('fecha_inicio')
+                                                                            Fecha de Inicio
+                                                                            @break
+                                                                        @case('fecha_fin')
+                                                                            Fecha de Fin
+                                                                            @break
+                                                                        @case('foto')
+                                                                            Imagen
+                                                                            @break
+                                                                        @default
+                                                                            {{ $cambio['campo'] }}
+                                                                    @endswitch
+                                                                </strong>
+                                                                <span class="badge bg-primary">{{ $cambio['tipo'] }}</span>
+                                                            </div>
+                                                            @if($cambio['tipo'] === 'fecha')
+                                                                <div class="small">
+                                                                    <span class="text-muted">De:</span> 
+                                                                    {{ $cambio['valor_anterior'] ? \Illuminate\Support\Carbon::parse($cambio['valor_anterior'])->translatedFormat('d/m/Y') : 'Sin fecha' }}
+                                                                    <br>
+                                                                    <span class="text-muted">A:</span> 
+                                                                    {{ $cambio['valor_nuevo'] ? \Illuminate\Support\Carbon::parse($cambio['valor_nuevo'])->translatedFormat('d/m/Y') : 'Sin fecha' }}
+                                                                </div>
+                                                            @elseif($cambio['tipo'] === 'imagen')
+                                                                <div class="small">
+                                                                    <span class="text-muted">Imagen actualizada</span>
+                                                                </div>
+                                                            @else
+                                                                <div class="small">
+                                                                    <span class="text-muted">De:</span> 
+                                                                    <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ $cambio['valor_anterior'] }}">
+                                                                        {{ Str::limit($cambio['valor_anterior'], 50) ?: 'Sin contenido' }}
+                                                                    </span>
+                                                                    <br>
+                                                                    <span class="text-muted">A:</span> 
+                                                                    <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ $cambio['valor_nuevo'] }}">
+                                                                        {{ Str::limit($cambio['valor_nuevo'], 50) }}
+                                                                    </span>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
                 
                 <div class="card-footer bg-light border-0 py-3">
@@ -87,6 +198,9 @@
                         </a>
                         
                         <div class="btn-group" role="group">
+                            <a href="{{ route('anuncio.edit', $anuncio['id']) }}" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
                             <button type="button" class="btn btn-outline-primary" onclick="window.print()">
                                 <i class="bi bi-printer"></i> Imprimir
                             </button>
@@ -137,10 +251,12 @@ function compartirAnuncio() {
     border: 1px solid #dee2e6;
 }
 
+/* Efecto hover deshabilitado para mantener la imagen estática
 .anuncio-detail-image:hover {
     transform: scale(1.02);
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
 }
+*/
 
 .anuncio-image-container {
     position: relative;
@@ -153,6 +269,55 @@ function compartirAnuncio() {
     .anuncio-detail-image {
         max-height: 300px !important;
     }
+}
+
+/* Timeline styles */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    background: #0d6efd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    z-index: 1;
+}
+
+.timeline-content {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+}
+
+.cambio-item {
+    border-left: 3px solid #0d6efd !important;
 }
 
 @media print {
@@ -169,6 +334,10 @@ function compartirAnuncio() {
     
     .anuncio-detail-image {
         max-height: 200px !important;
+    }
+    
+    .timeline {
+        display: none !important;
     }
 }
 </style>
